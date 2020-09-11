@@ -3,16 +3,16 @@ package com.example.lib_citydata.bean;
 import java.util.List;
 
 public class City {
-	private String code;
+	private String id;
     private String name;
-    private List<Area> areaList;
+    private List<Area> cityList;
 
-    public String getCode() {
-        return code;
+    public String getId() {
+        return id;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -24,10 +24,10 @@ public class City {
     }
 
     public List<Area> getAreaList() {
-        return areaList;
+        return cityList;
     }
 
     public void setAreaList(List<Area> areaList) {
-        this.areaList = areaList;
+        this.cityList = areaList;
     }
 }

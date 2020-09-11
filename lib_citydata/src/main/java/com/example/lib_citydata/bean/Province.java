@@ -3,16 +3,16 @@ package com.example.lib_citydata.bean;
 import java.util.List;
 
 public class Province {
-	private String code;
+	private String id;
     private String name;
     private List<City> cityList;
 
-    public String getCode() {
-        return code;
+    public String getId() {
+        return id;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {

@@ -6,6 +6,7 @@ import com.example.lib_citydata.utils.JSONFormatUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -48,7 +49,7 @@ public class Test {
 //			String path = FileUtils.getProjectDir() + "/2018年11月中华人民共和国县以上行政区划代码" + ".json";
 //			JSONFormatUtils.jsonWriter(provinceList, path);
 //
-            List<Province> provinceList = getProvincesList(stringName, stringCode);
+            List<Province> provinceList = processData(stringName, stringCode);
             String path = FileUtils.getProjectDir() + "/2018年11月中华人民共和国县以上行政区划代码" + ".json";
             JSONFormatUtils.jsonWriter(provinceList, path);
         } catch (IOException e) {
@@ -58,7 +59,6 @@ public class Test {
     }
 
     /**
-     *
      * @param stringName
      * @param stringCode
      * @return
@@ -94,7 +94,7 @@ public class Test {
 
             // 设置省份数据
             Province province = new Province();
-            province.setCode(code.get(proIndex));
+            province.setId(code.get(proIndex));
             province.setName(name.get(proIndex));
             List<City> cities = new ArrayList<City>();
             province.setCityList(cities);
@@ -124,23 +124,26 @@ public class Test {
                 boolean is = isContainer(cityCodeList, cityNameList);
                 if (is) {
                     City city = new City();
-                    city.setName("省直辖县级行政单位");
-                    city.setCode(province.getCode());
+                    city.setName(province.getName());
+                    city.setId(province.getId());
                     List<Area> areas = new ArrayList<Area>();
+                    Area area = new Area();
+                    area.setName("请选择");
+                    area.setId(province.getId());
+                    areas.add(area);
                     // 省直辖县级行政单位
                     for (int k = 0; k < cityCodeList.size(); k++) {
                         String tempName = cityNameList.get(k);
                         String tempCode = cityCodeList.get(k);
-                        Area area = new Area();
+                        area = new Area();
                         area.setName(tempName);
-                        area.setCode(tempCode);
+                        area.setId(tempCode);
                         areas.add(area);
                     }
                     city.setAreaList(areas);
                     cities.add(city);
                 } else {
                     // 正常的市级城市数据
-
                     City city = new City();
                     List<Area> areas = new ArrayList<Area>();
                     for (int k = 0; k < cityCodeList.size(); k++) {
@@ -149,12 +152,16 @@ public class Test {
                         // 市
                         if (tempCode.endsWith("00")) {
                             city.setName(tempName);
-                            city.setCode(tempCode);
+                            city.setId(tempCode);
+                            Area area = new Area();
+                            area.setName("请选择");
+                            area.setId(tempCode);
+                            areas.add(area);
                         } else {
                             // 区
                             Area area = new Area();
                             area.setName(tempName);
-                            area.setCode(tempCode);
+                            area.setId(tempCode);
                             areas.add(area);
                         }
                     }
@@ -175,7 +182,7 @@ public class Test {
         for (int k = 0; k < cityCodeList.size(); k++) {
             String tempName = cityNameList.get(k);
             String tempCode = cityCodeList.get(k);
-            if (tempCode.endsWith("00")) {
+            if (tempCode.endsWith("00") && !tempCode.endsWith("0000")) {
                 isContainer = false;
                 break;
             }
@@ -196,7 +203,9 @@ public class Test {
         Set<String> citySet = new HashSet<String>();
         for (int j = 0; j < name.size(); j++) {
             String tempCode = code.get(j).substring(0, 4);
-            citySet.add(tempCode);
+            if (!code.get(j).endsWith("0000")) {
+                citySet.add(tempCode);
+            }
         }
         Iterator<String> iterator = citySet.iterator();
         List<String> cityList = new ArrayList<String>();
@@ -204,6 +213,7 @@ public class Test {
             String stub = iterator.next();
             cityList.add(stub);
         }
+        Collections.sort(cityList);
         return cityList;
     }
 
@@ -250,7 +260,7 @@ public class Test {
             if (provinceCode.endsWith("0000")) {
                 Province province = new Province();
                 provinceList.add(province);
-                province.setCode(provinceCode);
+                province.setId(provinceCode);
                 province.setName(provinceName);
                 List<City> cities = new ArrayList<City>();
                 province.setCityList(cities);
@@ -259,12 +269,12 @@ public class Test {
                     City city = new City();
                     List<Area> areas = new ArrayList<Area>();
                     city.setName(provinceName);
-                    city.setCode(provinceCode);
+                    city.setId(provinceCode);
                     city.setAreaList(areas);
                     cities.add(city);
                     Area area = new Area();
                     area.setName(provinceName);
-                    area.setCode(provinceCode);
+                    area.setId(provinceCode);
                     areas.add(area);
                 }
                 // 直辖市 城市和省份名称一样
@@ -273,17 +283,22 @@ public class Test {
                     City city = new City();
                     List<Area> areas = new ArrayList<Area>();
                     city.setName(provinceName);
-                    city.setCode(provinceCode);
+                    String code=provinceCode.replace("0000","0100");
+                    city.setId(code);
                     city.setAreaList(areas);
                     cities.add(city);
+                    Area area = new Area();
+                    area.setName("请选择");
+                    area.setId(code);
+                    areas.add(area);
                     // 县区
                     for (int k = 0; k < stringCode.size(); k++) {
                         String areaName = stringName.get(k);
                         String areaCode = stringCode.get(k);
                         if (!provinceCode.equals(areaCode) && areaCode.startsWith(provinceCode.substring(0, 2))) {
-                            Area area = new Area();
+                            area = new Area();
                             area.setName(areaName);
-                            area.setCode(areaCode);
+                            area.setId(areaCode);
                             areas.add(area);
                         }
                     }
@@ -297,17 +312,21 @@ public class Test {
                         City city = new City();
                         List<Area> areas = new ArrayList<Area>();
                         city.setName(cityName);
-                        city.setCode(cityCode);
+                        city.setId(cityCode);
                         city.setAreaList(areas);
                         cities.add(city);
+                        Area area = new Area();
+                        area.setName("请选择");
+                        area.setId(cityCode);
+                        areas.add(area);
                         // 遍历获取县区
                         for (int k = 0; k < stringCode.size(); k++) {
                             String areaName = stringName.get(k);
                             String areaCode = stringCode.get(k);
                             if (!areaCode.equals(cityCode) && areaCode.startsWith(cityCode.substring(0, 4))) {
-                                Area area = new Area();
+                                area = new Area();
                                 area.setName(areaName);
-                                area.setCode(areaCode);
+                                area.setId(areaCode);
                                 areas.add(area);
                             }
                         }
